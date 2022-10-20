@@ -760,10 +760,15 @@ class MapPolyfill<T, KEY extends string | number = string | number> implements M
 // We want to use native Map if it is available, but we do not want to polyfill the global scope
 // in case users ship their own polyfills or patch the native map object in any way.
 const isNativeMapSupported = typeof Map === 'function';
-function maybeNativeMap<T, KEY extends string | number = string | number>(): MapInterface<T, KEY> {
+function maybeNativeMap<T, KEY extends string | number = string | number>(forcePolyfill?: boolean)
+    : MapInterface<T, KEY> {
+    if (forcePolyfill) {
+        return new MapPolyfill<T, KEY>();
+    }
     // Map may be a native class if we are running in an ES6 compatible environment.
+    // @ts-ignore
     // eslint-disable-next-line
-    return (isNativeMapSupported ? Map : MapPolyfill) as unknown as MapInterface<T, KEY>;
+    return isNativeMapSupported ? new Map() : new MapPolyfill();
 }
 
 /**
@@ -771,13 +776,13 @@ function maybeNativeMap<T, KEY extends string | number = string | number>(): Map
  * @param {Object} obj
  */
 export class HashMap<T, KEY extends string | number = string | number> {
-    data: MapInterface<T, KEY> = maybeNativeMap<T, KEY>();
+    data: MapInterface<T, KEY>;
 
-    constructor(obj?: HashMap<T, KEY> | { [key in KEY]?: T } | KEY[]) {
+    constructor(obj?: HashMap<T, KEY> | { [key in KEY]?: T } | KEY[], forcePolyfill?: boolean) {
         const isArr = isArray(obj);
         // Key should not be set on this, otherwise
         // methods get/set/... may be overrided.
-        this.data = maybeNativeMap<T, KEY>();
+        this.data = maybeNativeMap<T, KEY>(forcePolyfill);
         const thisMap = this;
 
         (obj instanceof HashMap)

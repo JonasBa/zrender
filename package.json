@@ -2,6 +2,7 @@
   "name": "zrender",
   "version": "5.4.0",
   "description": "A lightweight graphic library providing 2d draw for Apache ECharts",
+  "type": "module",
   "keywords": [
     "canvas",
     "svg",
@@ -31,6 +32,7 @@
   "module": "index.js",
   "main": "dist/zrender.js",
   "dependencies": {
+    "mitata": "^0.1.6",
     "tslib": "2.3.0"
   },
   "sideEffects": [
